@@ -7,24 +7,31 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Room {
-  id        String    @id @default(cuid())
-  name      String    @unique
-  capacity  Int
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  bookings  Booking[]
+enum RoomState {
+  vacant
+  occupied
+  booked
 }
 
-model Booking {
+model Room {
+  id           String     @id @default(cuid())
+  name         String     @unique
+  capacity     Int
+  availability TimeSlot[] 
+
+  @@index([name])
+}
+
+model TimeSlot {
   id        String    @id @default(cuid())
   roomId    String
-  bookedBy  String
+  room      Room      @relation(fields: [roomId], references: [id], onDelete: Cascade)
+
   startUtc  DateTime
   endUtc    DateTime
-  createdAt DateTime  @default(now())
+  state     RoomState
+  bookedBy  String?
 
-  room      Room      @relation(fields: [roomId], references: [id])
-
-  @@index([roomId, startUtc, endUtc])
+  @@unique([roomId, startUtc])
+  @@index([roomId, startUtc, endUtc], map: "idx_timeslot_room_time")
 }

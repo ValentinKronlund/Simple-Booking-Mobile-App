@@ -8,5 +8,6 @@ export default {
 			// uncomment & set if you’re testing on a real phone:
 			apiUrl: 'http://192.168.1.77:3000',
 		},
+		plugins: ['expo-font'],
 	},
 } as const;
