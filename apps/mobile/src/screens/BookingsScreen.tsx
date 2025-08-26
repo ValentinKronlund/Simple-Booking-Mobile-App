@@ -1,6 +1,6 @@
 /** @format */
 
-import React, { useMemo, useState, useCallback } from 'react';
+import React, { useMemo, useState, useCallback, useEffect } from 'react';
 import { View, Text, TextInput, SafeAreaView, Pressable, Alert } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useRoomsStore } from '../context/RoomsContext';
@@ -48,13 +48,29 @@ export default function BookingScreen({ navigation, route }: Props) {
 	const [localError, setLocalError] = useState<string | null>(null);
 
 	// ------------------
-	// Hard Variables ⬇️
-	// ------------------
-	const isVacant = (storeView.state ?? 'vacant') === 'vacant';
-
-	// ------------------
 	// Handlers ⬇️
 	// ------------------
+	const computeLiveView = useCallback(() => {
+		for (const room of rooms) {
+			for (const ts of room.availability ?? []) {
+				const id = `${room.id}-${ts.start}`;
+				if (id === slot.id) {
+					return {
+						state: (ts.state ?? 'vacant') as 'vacant' | 'booked' | 'occupied',
+						bookedBy: (ts.bookedBy ?? undefined) as string | undefined,
+					};
+				}
+			}
+		}
+		return {
+			state: (slot.state ?? 'vacant') as 'vacant' | 'booked' | 'occupied',
+			bookedBy: (slot.bookedBy ?? undefined) as string | undefined,
+		};
+	}, [rooms, slot.id, slot.state, slot.bookedBy]);
+	const [uiFrozen, setUiFrozen] = useState(false); // <--- Rogue states need to be declared after handler
+	const [uiView, setUiView] = useState(computeLiveView); // 🥷🏽
+	const isVacant = uiView.state === 'vacant';
+
 	const goBackAndDeselect = useCallback(() => {
 		navigation.navigate('Main');
 	}, []);
@@ -67,13 +83,15 @@ export default function BookingScreen({ navigation, route }: Props) {
 		}
 
 		setLocalError(null);
+		setUiFrozen(true);
+		setSubmitting(true);
 
-		const prevBookedBy = storeView.bookedBy;
-		const prevState = storeView.state;
+		const prevBookedBy = uiView.bookedBy;
+		const prevState = uiView.state;
+
 		updateSlotBookedBy(slot.id, name);
 		updateSlotState(slot.id, 'booked');
 
-		setSubmitting(true);
 		try {
 			await patchSlot({
 				roomId: slot.roomId,
@@ -109,13 +127,15 @@ export default function BookingScreen({ navigation, route }: Props) {
 	]);
 
 	const doUnbook = useCallback(async () => {
-		const prevBookedBy = storeView.bookedBy;
-		const prevState = storeView.state;
+		setLocalError(null);
+		setUiFrozen(true);
+		setSubmitting(true);
+
+		const prevBookedBy = uiView.bookedBy;
+		const prevState = uiView.state;
 
 		updateSlotBookedBy(slot.id, undefined);
 		updateSlotState(slot.id, 'vacant');
-
-		setSubmitting(true);
 
 		try {
 			await patchSlot({
@@ -165,6 +185,13 @@ export default function BookingScreen({ navigation, route }: Props) {
 			{ cancelable: true },
 		);
 	}, [isVacant, doBook, doUnbook]);
+
+	// ------------------
+	// Effects ⬇️
+	// ------------------
+	useEffect(() => {
+		if (!uiFrozen) setUiView(computeLiveView());
+	}, [computeLiveView, uiFrozen]);
 
 	// ------------------
 	// Render ⬇️
