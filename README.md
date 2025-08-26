@@ -12,18 +12,19 @@ Mobile books/unbooks meeting-room time slots persisted by the web API.
 
 ```
 apps/
-web/ # Next.js (App Router) + Prisma + SQLite
-prisma/
-schema.prisma
-seed.ts
-src/app/api/
-rooms/route.ts # GET rooms
-slots/route.ts # PATCH slot { state, bookedBy }
-mobile/ # Expo (React Native)
-app.config.ts
-babel.config.js
-src/
-config/api.ts # resolves API base URL (LAN/env/fallback)
+  web/               # Next.js (App Router) + Prisma + SQLite
+    prisma/
+      schema.prisma
+      seed.ts
+    src/app/api/
+      rooms/route.ts   # GET rooms
+      slots/route.ts   # PATCH slot { state, bookedBy }
+  mobile/            # Expo (React Native)
+    app.config.ts
+    babel.config.js
+    src/
+      config/api.ts    # resolves API base URL (LAN/env/fallback)
+      ...
 ...
 ```
 
