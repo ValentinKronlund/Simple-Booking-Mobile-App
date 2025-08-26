@@ -10,6 +10,7 @@ Mobile books/unbooks meeting-room time slots persisted by the web API.
 
 ## STRUCTURE
 
+```
 apps/
 web/ # Next.js (App Router) + Prisma + SQLite
 prisma/
@@ -24,6 +25,7 @@ babel.config.js
 src/
 config/api.ts # resolves API base URL (LAN/env/fallback)
 ...
+```
 
 ### PREREQS
 
