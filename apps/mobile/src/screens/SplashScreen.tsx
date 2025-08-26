@@ -15,7 +15,7 @@ export const SplashScreen = ({ navigation }: Props) => {
 				<View className='flex-1'>
 					<Title variant='h1'>Boka ett rum</Title>
 				</View>
-				<View className='gap-3'>
+				<View className='w-full gap-3 items-center'>
 					<Button label='Boka' onPress={() => navigation.replace('Main')} />
 				</View>
 			</View>

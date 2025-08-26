@@ -12,19 +12,21 @@ type Props = {
 		date: Date;
 		items: TimeSlotRender[];
 	}>;
-	onToggleCell?: (cell: TimeSlotRender) => void;
-	height?: number;
+	onToggleCell: (cell: TimeSlotRender) => void;
+	minHeight?: number;
 	selectedId?: string;
 };
 
 export default function DateSpanContainer({
 	data,
 	onToggleCell,
-	height = 448,
+	minHeight = 448,
 	selectedId,
 }: Props) {
 	return (
-		<View className='mt-3 border border-[#E0E0E0] rounded-xl' style={{ height }}>
+		<View
+			className='flex-1 mt-3 border border-[#E0E0E0] rounded-xl'
+			style={{ minHeight }}>
 			<View className='flex-row flex-1'>
 				{data.map(({ date, items }, i) => {
 					const isFirst = i === 0;
@@ -51,13 +53,7 @@ export default function DateSpanContainer({
 												key={`${idx}_${slot.id}`}
 												slot={slot}
 												selected={slot.id === selectedId}
-												onPress={(s) => {
-													if (onToggleCell) {
-														onToggleCell(s);
-													} else {
-														console.log('pressed');
-													}
-												}}
+												onPress={(s) => onToggleCell(s)}
 											/>
 										))
 									)}

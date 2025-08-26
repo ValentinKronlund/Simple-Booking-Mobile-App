@@ -2,30 +2,48 @@
 
 import { SafeAreaView, View } from 'react-native';
 import Title from '../components/atoms/ui/Title';
-import { useState, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo, useEffect } from 'react';
 import type { TimeSlotRender } from '../types/types';
 import DateSpanPicker from '../components/atoms/date/DateSpanPicker';
 import Dropdown from '../components/molecules/ui/Dropdown';
 import DateSpanContainer from '../components/molecules/date/DateSpanContainer';
-import { addDays, dayKey } from '../helpers/formating/Date.formating';
+import {
+	addDays,
+	dayKey,
+	FormatTime_FourDigits,
+} from '../helpers/formating/Date.formating';
 import { labelToName } from '../helpers/formating/String.formating';
 import StickyFooter from '../components/molecules/ui/StickyFooter';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types/types';
 import { useRoomsStore } from '../context/RoomsContext';
 import { serializeSlot } from '../helpers/transform/TimeSlot.serialize';
+import { useFocusEffect } from '@react-navigation/native';
+import Toast from '../components/atoms/ui/Toast';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Main'>;
 
-export const MainScreen = ({ navigation }: Props) => {
+export const MainScreen = ({ navigation, route }: Props) => {
 	const { rooms, loading, error, refreshRooms } = useRoomsStore();
 
+	// ------------------
+	// State Variables ⬇️
+	// ------------------
 	const [selectedRooms, setSelectedRooms] = useState<string[]>([]);
 	const [spanOffsetDays, setSpanOffsetDays] = useState(0);
 	const [selectedCell, setSelectedCell] = useState<TimeSlotRender | null>(null);
+	const [toastVisible, setToastVisible] = useState(false);
+	const [toastMsg, setToastMsg] = useState('');
+	const [footerH, setFooterH] = useState(0);
 
+	// ------------------
+	// Hard Variables ⬇️
+	// ------------------
 	const STEP_INCREMENT = 1;
 
+	// ------------------
+	// Memoized Variables ⬇️
+	// ------------------
 	const selectedNames = useMemo(() => selectedRooms.map(labelToName), [selectedRooms]);
 
 	const dropdownItems = useMemo(
@@ -74,8 +92,9 @@ export const MainScreen = ({ navigation }: Props) => {
 		});
 	}, [span, timeSlotCells]);
 
-	// ----- Handlers -----
-
+	// ------------------
+	// Handlers ⬇️
+	// ------------------
 	const toggleSelection = useCallback((selection: string) => {
 		setSelectedRooms((prev) =>
 			prev.includes(selection)
@@ -103,6 +122,38 @@ export const MainScreen = ({ navigation }: Props) => {
 		navigation.navigate('Booking', { slot: serializeSlot(selectedCell) });
 	}, [navigation, selectedCell]);
 
+	// ------------------
+	// Effects ⬇️
+	// ------------------
+	useFocusEffect(
+		useCallback(() => {
+			setSelectedCell(null);
+			return undefined;
+		}, []),
+	);
+
+	useEffect(() => {
+		const flash = route.params?.roomConfirmation;
+		if (!flash) return;
+
+		const start = new Date(flash.start);
+		const end = new Date(flash.end);
+		const time = `${FormatTime_FourDigits(start)}–${FormatTime_FourDigits(end)}`;
+
+		const msg =
+			flash.kind === 'booked'
+				? `Bokat: ${flash.room} ${time}`
+				: `Avbokat: ${flash.room} ${time}`;
+
+		setToastMsg(msg);
+		setToastVisible(true);
+
+		navigation.setParams({ roomConfirmation: undefined });
+	}, [route.params?.roomConfirmation, navigation]);
+
+	// ------------------
+	// Render ⬇️
+	// ------------------
 	return (
 		<SafeAreaView className='flex-1 bg-white'>
 			{/* Header */}
@@ -124,7 +175,7 @@ export const MainScreen = ({ navigation }: Props) => {
 			</View>
 
 			{/* Cell grid */}
-			<View className='h-[512px] mt-4 px-4 py-4 bg-white'>
+			<View className='flex-1 mt-4 px-4 py-4 bg-white' style={{ paddingBottom: footerH }}>
 				<DateSpanPicker span={span} onPrev={handlePrev} onNext={handleNext} />
 				<DateSpanContainer
 					data={groupedByDay}
@@ -132,6 +183,13 @@ export const MainScreen = ({ navigation }: Props) => {
 					selectedId={selectedCell?.id}
 				/>
 			</View>
+
+			{/* Toast overlay */}
+			<Toast
+				visible={toastVisible}
+				message={toastMsg}
+				onHide={() => setToastVisible(false)}
+			/>
 
 			{/* Sticky footer */}
 			<StickyFooter
@@ -141,6 +199,7 @@ export const MainScreen = ({ navigation }: Props) => {
 				loadingLabel='Hämtar…'
 				onPrimaryPress={goNext}
 				className='pb-12'
+				onHeight={setFooterH}
 				disabled={!selectedCell || loading}
 			/>
 		</SafeAreaView>

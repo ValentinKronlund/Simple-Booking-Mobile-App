@@ -7,7 +7,7 @@
     "schema": "prisma/schema.prisma"
   },
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev -H 0.0.0.0 -p 3000",
     "build": "next build --turbopack",
     "start": "next start",
     "lint": "eslint",

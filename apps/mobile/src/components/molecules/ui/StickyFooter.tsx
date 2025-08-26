@@ -11,6 +11,7 @@ type Props = {
 	primaryLabel: string;
 	loadingLabel?: string;
 	onPrimaryPress: () => void;
+	onHeight?: (h: number) => void;
 	disabled?: boolean;
 } & ViewProps;
 
@@ -23,13 +24,18 @@ export default function StickyFooter({
 	disabled,
 	className,
 	style,
+	onHeight,
 	...rest
 }: Props) {
 	const computedDisabled = disabled ?? loading;
 	const visuals = getFooterVisuals(className);
 
 	return (
-		<View className={visuals.container} style={style} {...rest}>
+		<View
+			className={visuals.container}
+			style={style}
+			onLayout={(e) => onHeight?.(e.nativeEvent.layout.height)}
+			{...rest}>
 			{error ? <Text className={visuals.error}>{error}</Text> : null}
 
 			{loading ? (

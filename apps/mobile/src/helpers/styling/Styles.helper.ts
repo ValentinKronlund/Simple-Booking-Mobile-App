@@ -66,7 +66,7 @@ export function getFooterVisuals(className: string | undefined) {
 	return {
 		container: [
 			className ?? '',
-			'absolute bottom-0 left-0 right-0 bg-neutral-950/85 border-t border-white/10 px-6 pt-4',
+			'absolute bottom-0 left-0 right-0 bg-neutral-950/85 border-t border-white/10 items-center pt-4',
 		].join(' '),
 		error: 'text-red-400 text-sm mb-2',
 		loading: 'mb-3',

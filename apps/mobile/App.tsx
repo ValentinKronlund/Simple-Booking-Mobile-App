@@ -1,5 +1,5 @@
 /** @format */
-
+import 'react-native-reanimated';
 import FontProvider from './src/providers/FontProvider';
 import RootNavigator from './src/navigation/RootNavigator';
 import { RoomsProvider } from './src/context/RoomsContext';

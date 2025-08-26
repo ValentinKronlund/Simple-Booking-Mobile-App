@@ -5,8 +5,7 @@ export default {
 		name: 'mobile',
 		slug: 'mobile',
 		extra: {
-			// uncomment & set if you’re testing on a real phone:
-			apiUrl: 'http://192.168.1.77:3000',
+			apiUrl: 'http://192.168.1.77:3000', //<--- Update this to your machines IP
 		},
 		plugins: ['expo-font'],
 	},
