@@ -1,6 +1,6 @@
 /** @format */
 
-import { addMinutes } from '@/helpers/formating/Time.formating';
+import { addMinutes } from '@/helpers/formating/Date.formating';
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
