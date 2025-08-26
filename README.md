@@ -45,6 +45,8 @@ apps/
 ```bash
    git clone https://github.com/ValentinKronlund/Simple-Booking-Mobile-App.git
    cd Simple-Booking-Mobile-App
+
+   # Install dependencies
    npm install
 ```
 
@@ -52,9 +54,17 @@ apps/
 
 ```bash
    cd apps/web
+
+   # Generate a .env file from the example
    cp .env.example .env # DATABASE_URL="file:./dev.db"
+
+   # Run the migration script to set up and populate a new database instance.
    npm run db:migrate # prisma migrate dev
+
+   # If you want to reseed the database run:
    npm run db:seed # prisma db seed
+
+   # Starts app in development mode : (or) npm run web from root directory.
    npm run dev # serves on http://0.0.0.0:3000 (LAN)
 ```
 
@@ -64,7 +74,15 @@ apps/
 
 ```bash
 cd apps/mobile
+
+# Install dependencies
+npm i
+
+# Start mobile app
 npx expo start -c # press "i" for iOS simulator
+
+# (or)
+npm run mobile # from root directory
 ```
 
 - Simulator: uses http://localhost:3000 automatically.
