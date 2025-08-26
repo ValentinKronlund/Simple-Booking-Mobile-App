@@ -1,0 +1,7 @@
+{
+    "scripts": {
+        "web": "npm --prefix apps/web run dev",
+        "web:seed": "npm --prefix apps/web run db:seed",
+        "mobile": "npm --prefix apps/mobile run start"
+    }
+}
